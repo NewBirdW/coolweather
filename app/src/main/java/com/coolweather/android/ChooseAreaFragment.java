@@ -2,8 +2,8 @@ package com.coolweather.android;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +59,6 @@ public class ChooseAreaFragment extends Fragment {
     /**当前选中的级别*/
     private int currentLevel;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area,container,false);
@@ -83,6 +82,12 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel == LEVEL_CITY){
                     selectedCity = cityList.get(position);
                     queryCounties();
+                }else if(currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -90,17 +95,17 @@ public class ChooseAreaFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(currentLevel == LEVEL_CITY){
-                    queryProinces();
+                    queryProvinces();
                 }else if(currentLevel == LEVEL_COUNTY){
                     queryCities();
                 }
             }
         });
-        queryProinces();
+        queryProvinces();
     }
 
     /**查询全国所有的省,优先从数据库取，没有则从服务器取*/
-    private void queryProinces(){
+    private void queryProvinces(){
         titleText.setText("中国");
         backButton.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Province.class);
@@ -131,8 +136,8 @@ public class ChooseAreaFragment extends Fragment {
             listView.setSelection(0);
             currentLevel = LEVEL_CITY;
         }else{
-            int provinceCode = selectedProvince.getProvinceCode();
-            String address = "http://guolin.tech/api/china"+provinceCode;
+            int provinceCode = selectedProvince.getId();
+            String address = "http://guolin.tech/api/china/"+provinceCode;
             queryFromServer(address,"city");
         }
     }
@@ -150,9 +155,9 @@ public class ChooseAreaFragment extends Fragment {
             listView.setSelection(0);
             currentLevel = LEVEL_COUNTY;
         }else{
-            int provinceCode = selectedProvince.getProvinceCode();
-            int cityCode = selectedCity.getCityCode();
-            String address = "http://guolin.tech/api/china"+provinceCode+cityCode;
+            int provinceCode = selectedProvince.getId();
+            int cityCode = selectedCity.getId();
+            String address = "http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
             queryFromServer(address,"county");
         }
     }
@@ -163,7 +168,7 @@ public class ChooseAreaFragment extends Fragment {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseText = response.body().toString();
+                String responseText = response.body().string();
                 boolean result = false;
                 if("province".equals(type)){
                     result = Utility.handleProvinceResponse(responseText);
@@ -178,7 +183,7 @@ public class ChooseAreaFragment extends Fragment {
                         public void run() {
                             closeProgressDialog();
                             if("province".equals(type)){
-                                queryProinces();
+                                queryProvinces();
                             }else if("city".equals(type)){
                                 queryCities();
                             }else if("county".equals(type)){
