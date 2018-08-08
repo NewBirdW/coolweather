@@ -65,7 +65,7 @@ public class WeatherActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("WeatherActivity",MODE_PRIVATE);
         String weatherString = sharedPreferences.getString("weather",null);
         if(weatherString != null){
-            //有缓存的直接解析天气数据
+            //有缓存时直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
             showWeatherInfo(weather);
         }else{
