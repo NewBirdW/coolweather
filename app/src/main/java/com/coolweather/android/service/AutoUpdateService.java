@@ -19,6 +19,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**后台自动更新天气和背景图片*/
 public class AutoUpdateService extends Service {
     public AutoUpdateService() {
     }
@@ -33,7 +34,7 @@ public class AutoUpdateService extends Service {
         updateBingPic();
         updateWeather();
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int anHour = 8*60*60*1000;
+        int anHour = 8*60*60*1000;//每8小时更新一次
         long alarmTrigger = SystemClock.elapsedRealtime() + anHour;
         Intent i = new Intent(this,AutoUpdateService.class);
         PendingIntent pi = PendingIntent.getService(this,0,i,0);

@@ -89,13 +89,12 @@ public class ChooseAreaFragment extends Fragment {
                         intent.putExtra("weather_id",weatherId);
                         startActivity(intent);
                         getActivity().finish();
-                    }else if(getActivity() instanceof WeatherActivity){
+                    }else if(getActivity() instanceof WeatherActivity){//如果是从左侧列表选择的城市，则关闭左侧列表并刷新
                         WeatherActivity weatherActivity = (WeatherActivity) getActivity();
                         weatherActivity.drawerLayout.closeDrawers();
                         weatherActivity.swipeRefreshLayout.setRefreshing(true);
                         weatherActivity.requestWeather(weatherId);
                     }
-
                 }
             }
         });
@@ -125,7 +124,7 @@ public class ChooseAreaFragment extends Fragment {
             for(Province province:provinceList){
                 dataList.add(province.getProvinceName());
             }
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();//刷新列表
             listView.setSelection(0);
             currentLevel = LEVEL_PROVINCE;
         }else{
